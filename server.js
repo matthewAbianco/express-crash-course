@@ -1,25 +1,20 @@
 const express = require('express');
 const path = require('path');
-const members = require('./Members');
-const moment = require('moment');
+const logger = require('./middleware/logger')
+const apiRoutes = require('./routes/api/members');
 
 const app = express();
 
-const logger = (req, res, next) => {
-
-    // req.protocol returns 'http', req.get('host) gets us the 'localhost:5000', req.originalUrl gets us the '/api/members/ 
-    console.log(`${req.protocol}://${req.get('host')}${req.originalUrl}: ${moment().format()}`);
-    next();
-};
-
-// Init middleware
- app.use(logger)
-// GETS all members
-app.get('/api/members', (req, res) => res.json(members))
+// Body Parser Middleware
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 // this creates a relative path for the server. meaning every file in the public directory will now be launched when the server starts. AKA a static folder
-// 
+// Set Static folder
 app.use(express.static(path.join(__dirname, 'public')))
+
+// members API routes
+app.use('/api/members', require('./routes/api/members'));
 
 const PORT = process.env.PORT || 5000;
 
@@ -30,3 +25,6 @@ app.listen(PORT, console.log(`Server started on port ${PORT}`));
 // app.get('/', (req, res) => {
 //     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 // });
+
+// Init middleware
+ // app.use(logger)
